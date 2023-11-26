@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
+use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 use serde_yaml;
@@ -13,9 +14,9 @@ pub struct ParticipantsData {
 }
 
 impl ParticipantsData {
-    pub(crate) fn new(file_path: String) -> Self {
+    pub(crate) fn new(input_file: PathBuf) -> Self {
         // Read YAML file into a String
-        let mut file = File::open(file_path)
+        let mut file = File::open(input_file)
             .expect("Failed to open file");
 
         let mut yaml_content = String::new();

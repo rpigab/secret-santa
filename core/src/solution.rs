@@ -1,5 +1,4 @@
 use std::collections::HashSet;
-use std::env;
 
 use base64::Engine;
 use base64::engine::general_purpose;
@@ -21,7 +20,8 @@ pub struct Solution {
 }
 
 impl Solution {
-    pub fn get_solution(g: Digraph, cycle: Vec<NodeId>) -> Result<Self, &'static str> {
+    pub fn get_solution(g: Digraph, cycle: Vec<NodeId>, affectation_base_uri: String)
+                        -> Result<Self, &'static str> {
         log::debug!("solution: {cycle:?}");
 
         let assignments = (0..cycle.len()).into_iter()
@@ -33,9 +33,6 @@ impl Solution {
 
                 Assignment { giver, recipient }
             }).collect::<HashSet<Assignment>>();
-
-        let affectation_base_uri = env::var("AFFECTATION_BASE_URI")
-            .or_else(|_| Ok("http://localhost:8000/fr/affectation.html".to_string()))?;
 
         Ok(Solution {
             assignments,
