@@ -1,0 +1,24 @@
+participants:
+  - A
+  - B
+  - C
+  - D
+  - E
+  - F
+already_gifted_before:
+  A:
+    - D
+  B:
+    - E
+  C:
+    - B
+  D:
+    - E
+  E: []
+  F:
+    - C
+couples:
+  - - A
+    - B
+  - - C
+    - D

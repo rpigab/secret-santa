@@ -1,0 +1,13 @@
+[package]
+name = "secret-santa-cli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+env_logger = "0.10"
+secret-santa-core = { path = "../core" }
+log = "0.4.20"
+
+[[bin]]
+name = "secret-santa-cli"
+path = "src/main.rs"

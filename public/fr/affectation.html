@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secret Santa</title>
+</head>
+<body>
+
+<p></p>
+
+<script>
+    // Get the query string from the URL
+    const queryString = window.location.search;
+
+    // Parse the query string to get individual parameters
+    const urlParams = new URLSearchParams(queryString);
+
+    // Get values for specific parameters
+    const giver = urlParams.get('giver');
+    const recipient = atob(urlParams.get('recipient'));
+
+    // Display the parameters in a paragraph
+    let resultParagraph = document.createElement('p');
+    resultParagraph.textContent = `Bonjour ${giver}, tu es le Secret Santa de ${recipient}`
+
+    // Append the paragraph to the body
+    document.body.appendChild(resultParagraph);
+</script>
+
+</body>
+</html>
