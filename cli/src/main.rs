@@ -1,3 +1,7 @@
+#[macro_use]
+extern crate prettytable;
+
+use std::collections::HashMap;
 use std::path::PathBuf;
 
 use clap::Parser;
@@ -36,7 +40,19 @@ fn main() {
         });
 
     match solve_file(cli_opts.input_file, affectation_base_uri) {
-        Ok(_) => {}
+        Ok(links) => {
+            display_links_table(links);
+        }
         Err(e) => eprint!("error: {e}")
+    };
+}
+
+fn display_links_table(links: HashMap<String, String>) {
+    let mut table = table!([rFg->"Giver name", Fg->"Link"]);
+
+    for (giver, link) in links {
+        table.add_row(row![r->giver, link]);
     }
+
+    log::info!("Affectations as links to send to each gift giver:\n{table}");
 }
