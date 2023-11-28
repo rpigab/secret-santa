@@ -13,17 +13,27 @@ pub struct ParticipantsData {
     pub couples: Option<Vec<(String, String)>>,
 }
 
-impl ParticipantsData {
-    pub(crate) fn new(input_file: PathBuf) -> Self {
+impl TryFrom<PathBuf> for ParticipantsData {
+    type Error = &'static str;
+
+    fn try_from(input_file: PathBuf) -> Result<Self, Self::Error> {
         // Read YAML file into a String
         let mut file = File::open(input_file)
-            .expect("Failed to open file");
+            .map_err(|_| "error loading file")?;
 
         let mut yaml_content = String::new();
         file.read_to_string(&mut yaml_content)
-            .expect("Failed to read file");
+            .map_err(|_| "error reading file to yaml String")?;
+        yaml_content.try_into()
+    }
+}
 
+impl TryFrom<String> for ParticipantsData {
+    type Error = &'static str;
+
+    /// String should contain valid yaml matching ParticipantsData's structure
+    fn try_from(yaml_content: String) -> Result<Self, Self::Error> {
         serde_yaml::from_str(&yaml_content)
-            .expect("Failed to deserialize YAML")
+            .map_err(|_| "error deserializing yaml to ParticipantData")
     }
 }

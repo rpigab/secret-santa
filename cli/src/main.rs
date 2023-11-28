@@ -1,13 +1,12 @@
-#[macro_use]
-extern crate prettytable;
-
-use std::collections::HashMap;
 use std::path::PathBuf;
 
 use clap::Parser;
 use env_logger::Env;
 
-use secret_santa_core::solve_file;
+use secret_santa_cli::display_links_table;
+use secret_santa_core::solve_from_data;
+use secret_santa_utils::bench::alloc::check_final_alloc;
+use secret_santa_utils::chrono::Chrono;
 
 /// Load a yaml data file into a graph of participants in a Secret Santa activity,
 /// then select at random one of the solutions to assign givers and recipients
@@ -18,13 +17,19 @@ struct CliOpts {
     /// The path to the file to read
     input_file: PathBuf,
     /// The base URI to generate affectation links,
-    /// e.g. "http://localhost:8000/fr/affectation.html" (which is the default, if not provided)
+    /// e.g. "http://localhost:8080/fr/affectation.html" (which is the default, if not provided)
     affectation_base_uri: Option<String>,
 }
 
-const DEFAULT_AFFECTATION_BASE_URI: &str = "http://localhost:8000/fr/affectation.html";
+const DEFAULT_AFFECTATION_BASE_URI: &str = "http://localhost:8080/fr/affectation.html";
 
 fn main() {
+    let chrono = Chrono::new();
+    run();
+    chrono.stop();
+}
+
+fn run() {
     let env = Env::default()
         .filter_or("LOG_LEVEL", "info")
         .write_style_or("LOG_STYLE", "always");
@@ -39,20 +44,12 @@ fn main() {
             DEFAULT_AFFECTATION_BASE_URI.to_string()
         });
 
-    match solve_file(cli_opts.input_file, affectation_base_uri) {
+    match solve_from_data(cli_opts.input_file, affectation_base_uri) {
         Ok(links) => {
             display_links_table(links);
         }
         Err(e) => eprint!("error: {e}")
     };
-}
 
-fn display_links_table(links: HashMap<String, String>) {
-    let mut table = table!([rFg->"Giver name", Fg->"Link"]);
-
-    for (giver, link) in links {
-        table.add_row(row![r->giver, link]);
-    }
-
-    log::info!("Affectations as links to send to each gift giver:\n{table}");
+    check_final_alloc();
 }

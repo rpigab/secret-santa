@@ -1,0 +1,11 @@
+[package]
+name = "secret-santa-utils"
+version.workspace = true
+edition.workspace = true
+
+[features]
+bench = ["dep:peak_alloc"]
+
+[dependencies]
+log = "0.4"
+peak_alloc = { version = "0.2.0", optional = true }

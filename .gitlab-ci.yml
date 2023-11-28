@@ -1,10 +1,47 @@
 image: alpine
 
-pages:
+workflow:
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+
+stages:
+  - wasm
+  - web
+  - pages
+
+build_wasm:
+  image: rpigab/rust-wasm-pack:1.74
+  stage: wasm
   script:
-    - ls -l public
+    - cd wasm
+    - wasm-pack build
+  artifacts:
+    paths:
+      - wasm/pkg/
+    expire_in: 1h
+
+build_web:
+  image: node:16-alpine
+  stage: web
+  needs:
+    - job: build_wasm
+      artifacts: true
+  script:
+    - cd wasm/web
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - "wasm/web/dist"
+    expire_in: 1 week
+
+pages:
+  stage: pages
+  needs:
+    - job: build_web
+      artifacts: true
+  script:
+    - mv wasm/web/dist public
   artifacts:
     paths:
       - public
-  rules:
-    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH

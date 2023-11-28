@@ -1,5 +1,7 @@
 use rand::seq::SliceRandom;
 
+use secret_santa_utils::bench;
+
 use crate::graph::digraph::Digraph;
 use crate::graph::node::NodeId;
 
@@ -14,7 +16,7 @@ pub fn solve(g: &Digraph) -> Result<Vec<NodeId>, &'static str> {
 
     log::info!("{} solutions found", solutions.len());
     for cycle in &solutions {
-        log::debug!("sol: {cycle:?}");
+        log::trace!("sol: {cycle:?}");
     }
 
     if solutions.is_empty() {
@@ -38,6 +40,7 @@ fn r_find_cycles(g: &Digraph, visited: Vec<NodeId>) -> Vec<Vec<NodeId>> {
         // if last edge loops back to first node, return visited + current as solution
         if g.targets(current_node).iter()
             .find(|&t| *t == first_node).is_some() {
+            bench::alloc::check_current_alloc();
             return vec![visited];
         }
     }

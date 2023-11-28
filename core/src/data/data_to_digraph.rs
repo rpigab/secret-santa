@@ -1,7 +1,8 @@
 use std::collections::HashMap;
+
 use crate::data::participants_data::ParticipantsData;
 use crate::graph::digraph::Digraph;
-use crate::graph::node::{Node, NodeId};
+use crate::graph::node::Node;
 
 impl TryFrom<ParticipantsData> for Digraph {
     type Error = &'static str;
@@ -17,17 +18,7 @@ impl TryFrom<ParticipantsData> for Digraph {
         }
 
         // add edges
-        let sources: Vec<NodeId> = g.nodes().iter()
-            .map(|n| n.id().clone())
-            .collect();
-        let targets: Vec<NodeId> = g.nodes().iter()
-            .map(|n| n.id().clone())
-            .collect();
-        sources.iter().for_each(|source| {
-            targets.iter().for_each(|target| if source != target {
-                g.add_edge(*source, *target).unwrap();
-            });
-        });
+        g.add_all_edges();
         log::info!("number of edges to begin (complete graph): {}", g.num_edges());
 
         // remove edges for couples

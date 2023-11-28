@@ -1,3 +1,0 @@
-- html pages template
-- pages CI/CD
-- add style

@@ -1,15 +1,25 @@
 [package]
 name = "secret-santa-cli"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
+
+[features]
+bench = ["dep:peak_alloc"]
 
 [dependencies]
+secret-santa-core = { path = "../core" }
+secret-santa-utils = { path = "../utils" }
 clap = { version = "4.4", features = ["derive"] }
 env_logger = "0.10"
 log = "0.4"
 prettytable-rs = "0.10"
-secret-santa-core = { path = "../core" }
+peak_alloc = { version = "0.2.0", optional = true }
 
 [[bin]]
 name = "secret-santa-cli"
 path = "src/main.rs"
+
+[[bin]]
+name = "secret-santa-benchmark"
+path = "src/benchmark.rs"
+required-features = ["bench"]

@@ -26,6 +26,21 @@ impl Digraph {
         self.nodes.insert(node);
     }
 
+    pub fn add_all_edges(&mut self) {
+        let sources: Vec<NodeId> = self.nodes().iter()
+            .map(|n| n.id().clone())
+            .collect();
+        let targets: Vec<NodeId> = self.nodes().iter()
+            .map(|n| n.id().clone())
+            .collect();
+        sources.iter().for_each(|source| {
+            targets.iter().for_each(|target| if source != target {
+                self.add_edge(*source, *target).unwrap();
+            });
+        });
+    }
+
+
     pub fn add_edge(&mut self, u: NodeId, v: NodeId) -> Result<(), &'static str> {
         // Only add edges if nodes u and v exist
         // and if edge doesn't already exist

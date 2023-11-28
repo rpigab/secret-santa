@@ -1,0 +1,15 @@
+participants:
+  - Alice
+  - Bob
+  - Carol
+  - David
+already_gifted_before:
+  Alice:
+    - Carol
+  Carol:
+    - Bob
+couples:
+  - - Alice
+    - Bob
+  - - Carol
+    - David
