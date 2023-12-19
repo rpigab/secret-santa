@@ -1,5 +1,8 @@
 use std::collections::{HashMap, HashSet};
 
+use anyhow::{anyhow, ensure, Result};
+
+use crate::error::Grinch;
 use crate::graph::node::{Node, NodeId};
 
 #[derive(Debug)]
@@ -41,50 +44,44 @@ impl Digraph {
     }
 
 
-    pub fn add_edge(&mut self, u: NodeId, v: NodeId) -> Result<(), &'static str> {
+    pub fn add_edge(&mut self, u: NodeId, v: NodeId) -> Result<()> {
         // Only add edges if nodes u and v exist
         // and if edge doesn't already exist
-        if self.nodes.iter().find(|&n| *n.id() == u).is_some()
-            && self.nodes.iter().find(|&n| *n.id() == v).is_some() {
-            // Add edge
-            let edges_by_source = self.edges.get_mut(&u);
-            match edges_by_source {
-                None => {
-                    return Err("Edge should contain HashSet from add_node()");
-                }
-                Some(targets) => {
-                    // Add to set
-                    targets.insert(v);
-                }
+        ensure!(self.nodes.iter().find(|&n| *n.id() == u).is_some()
+            && self.nodes.iter().find(|&n| *n.id() == v).is_some(),
+            Grinch::CannotAddEdgeToGraph
+        );
+        // Add edge
+        let edges_by_source = self.edges.get_mut(&u);
+        match edges_by_source {
+            None => {
+                return Err(anyhow!(Grinch::CannotAddEdgeToGraph));
             }
-            Ok(())
-        } else {
-            Err("Cannot add edge: both nodes must exist")
+            Some(targets) => {
+                // Add to set
+                targets.insert(v);
+            }
         }
+        Ok(())
     }
 
-    pub(crate) fn remove_edges_both_dirs(&mut self, a: String, b: String)
-                                         -> Result<(), &'static str> {
+    pub(crate) fn remove_edges_both_dirs(&mut self, a: String, b: String) -> Result<()> {
         self.remove_edge(&a, &b)?;
         self.remove_edge(&b, &a)?;
         Ok(())
     }
 
-    pub(crate) fn remove_edge(&mut self, a: &String, b: &String)
-                              -> Result<(), &'static str> {
+    pub(crate) fn remove_edge(&mut self, a: &String, b: &String) -> Result<()> {
         let a = self.node_name_to_id(a)?;
         let b = self.node_name_to_id(b)?;
 
         self.remove_edge_ids(a, b)
     }
 
-    pub(crate) fn remove_edge_ids(&mut self, a: NodeId, b: NodeId)
-                                  -> Result<(), &'static str> {
-        let foo = self.edges.get_mut(&a).unwrap();
-        let res = foo.remove(&b);
-        if !res {
-            return Err("tried to remove edge that did not exist");
-        }
+    pub(crate) fn remove_edge_ids(&mut self, a: NodeId, b: NodeId) -> Result<()> {
+        let nodes = self.edges.get_mut(&a)
+            .ok_or(anyhow!(Grinch::CannotRemoveEdgeFromGraph))?;
+        ensure!(nodes.remove(&b), Grinch::CannotRemoveEdgeFromGraph);
         Ok(())
     }
 
@@ -93,14 +90,17 @@ impl Digraph {
             .unwrap().clone()
     }
 
-    pub fn node_name_to_id<'a>(&self, name: &String) -> Result<NodeId, &'static str> {
-        Ok(*self.nodes.iter().find(|&n| *n.name() == *name)
-            .ok_or("cannot find node")?.id())
+    pub fn node_name_to_id<'a>(&self, name: &String) -> Result<NodeId> {
+        Ok(*self.nodes.iter()
+            .find(|&n| *n.name() == *name)
+            .ok_or(anyhow!(Grinch::CannotFindNodeNameById))?
+            .id())
     }
 
-    pub(crate) fn node_id_to_name(&self, id: NodeId) -> Result<String, &'static str> {
+    pub(crate) fn node_id_to_name(&self, id: NodeId) -> Result<String> {
         Ok(self.nodes.iter().find(|&n| *n.id() == id)
-            .ok_or("cannot find node")?.name().clone())
+            .ok_or(anyhow!(Grinch::CannotFindNodeIdByName))?
+            .name().clone())
     }
 
     pub fn nodes(&self) -> &HashSet<Node> {

@@ -3,35 +3,34 @@ import * as wasm from "secret-santa-wasm";
 wasm.init();
 
 const solveButton = document.getElementById("solve");
+const clearInputButton = document.getElementById("clearInput");
 
-var inputElement = document.getElementById("inputData");
+const inputElement = document.getElementById("inputData");
+const outputElement = document.getElementById("output");
+const solveErrorsElement = document.getElementById("solveErrors");
 
-solveButton.addEventListener("click", event => {
-    // Get the value (text) from the input element
-    var inputData = inputElement.value;
-
-    var outputValue = solve(inputData);
-
-    // Display the output in an HTML element
-    var outputElement = document.getElementById("output");
-    outputElement.innerHTML = outputValue;
+clearInputButton.addEventListener("click", event => {
+    inputElement.value = "";
 });
 
-function solve(inputData) {
-    var res = wasm.solve(inputData);
-    // json to js
-    var map = JSON.parse(res);
-    var out = "";
-    for (let key in map) {
-        if (map.hasOwnProperty(key)) {
-            console.log(key, map[key]);
-            out += `<ul><a href="${map[key]}" target="_blank">${key}</a></ul>`;
-        }
-    }
-    return out;
-}
+solveButton.addEventListener("click", event => {
+    // Clear results and errors displayed
+    outputElement.innerHTML = "";
+    solveErrorsElement.innerText = "";
 
-var exampleYaml = `participants:
+    // Get the value (text) from the input element
+    const inputData = inputElement.value;
+
+    try {
+        var assignmentsLinks = wasm.solve(inputData);
+        outputElement.innerHTML = wasm.show_result_html(assignmentsLinks);
+    } catch (error) {
+        solveErrorsElement.innerText = error;
+        console.error(error);
+    }
+});
+
+const exampleYaml = `participants:
   - Alice
   - Bob
   - Carol

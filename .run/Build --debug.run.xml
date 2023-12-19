@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Build --debug" type="WasmPackCommandRunConfiguration" factoryName="wasm-pack">
+    <option name="command" value="build --debug" />
+    <option name="workingDirectory" value="file://$PROJECT_DIR$/wasm" />
+    <option name="emulateTerminal" value="true" />
+    <method v="2">
+      <option name="WASM_PACK.BUILD_TASK_PROVIDER" enabled="true" />
+    </method>
+  </configuration>
+</component>

@@ -2,6 +2,7 @@
 name = "secret-santa-cli"
 version.workspace = true
 edition.workspace = true
+license.workspace = true
 
 [features]
 bench = ["dep:peak_alloc"]

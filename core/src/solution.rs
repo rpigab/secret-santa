@@ -1,14 +1,15 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
-use base64::Engine;
-use base64::engine::general_purpose;
-use url::Url;
+use anyhow::Result;
 
+use secret_santa_utils::recipient_uri::build_recipient_uri;
+
+use crate::assignment_links::{AssignmentLink, AssignmentLinks};
+use crate::cycle::Cycle;
 use crate::graph::digraph::Digraph;
-use crate::graph::node::NodeId;
 
 #[derive(Debug, Eq, Hash, PartialEq)]
-pub struct Assignment {
+struct Assignment {
     giver: String,
     recipient: String,
 }
@@ -16,18 +17,10 @@ pub struct Assignment {
 #[derive(Debug)]
 pub struct Solution {
     assignments: HashSet<Assignment>,
-    affectation_base_uri: String,
-}
-
-#[derive(Debug)]
-pub struct AssignmentLink {
-    giver: String,
-    link: String,
 }
 
 impl Solution {
-    pub fn get_solution(g: Digraph, cycle: Vec<NodeId>, affectation_base_uri: String)
-                        -> Result<Self, &'static str> {
+    pub(crate) fn from_cycle(g: Digraph, cycle: Cycle) -> Result<Self> {
         log::debug!("solution: {cycle:?}");
 
         let assignments = (0..cycle.len()).into_iter()
@@ -42,31 +35,21 @@ impl Solution {
 
         Ok(Solution {
             assignments,
-            affectation_base_uri,
         })
     }
 
-    pub fn display_links(&self) -> Result<HashMap<String, String>, &'static str> {
-        let links: Result<HashMap<String, String>, &'static str> = self.assignments.iter()
-            .map(|a| build_uri(self.affectation_base_uri.as_str(), a.giver.as_str(), a.recipient.as_str()))
-            .map(|r| r.map(|a| (a.giver, a.link)))
+    pub(crate) fn to_solution_links(self) -> AssignmentLinks {
+        let assignments_links = self.assignments.into_iter()
+            .map(|Assignment { giver, recipient }|
+                (
+                    AssignmentLink {
+                        giver_name: giver.clone(),
+                        recipient_link: build_recipient_uri(giver, recipient),
+                    }
+                )
+            )
             .collect();
 
-        links
+        AssignmentLinks { assignments_links }
     }
-}
-
-
-fn build_uri(base_path: &str, giver: &str, recipient: &str) -> Result<AssignmentLink, &'static str> {
-    let mut url = Url::parse(base_path)
-        .map_err(|_| "parse error in url")?;
-    url.query_pairs_mut().append_pair("giver", giver);
-
-    let recipient_b64 = general_purpose::STANDARD.encode(recipient);
-    url.query_pairs_mut().append_pair("recipient", &*recipient_b64);
-
-    Ok(AssignmentLink {
-        giver: giver.to_string(),
-        link: url.to_string(),
-    })
 }

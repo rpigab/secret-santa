@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="start" type="js.build_tools.npm" nameIsGenerated="true">
+    <package-json value="$PROJECT_DIR$/wasm/web/package.json" />
+    <command value="run" />
+    <scripts>
+      <script value="start" />
+    </scripts>
+    <node-interpreter value="project" />
+    <envs />
+    <method v="2">
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Build --debug" run_configuration_type="WasmPackCommandRunConfiguration" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="ci" run_configuration_type="js.build_tools.npm" />
+      <option name="LaunchBrowser.Before.Run" url="http://localhost:8080/" />
+    </method>
+  </configuration>
+</component>

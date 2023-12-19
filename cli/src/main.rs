@@ -4,7 +4,7 @@ use clap::Parser;
 use env_logger::Env;
 
 use secret_santa_cli::display_links_table;
-use secret_santa_core::solve_from_data;
+use secret_santa_core::solve::solve_from_data;
 use secret_santa_utils::bench::alloc::check_final_alloc;
 use secret_santa_utils::chrono::Chrono;
 
@@ -19,6 +19,9 @@ struct CliOpts {
     /// The base URI to generate affectation links,
     /// e.g. "http://localhost:8080/fr/affectation.html" (which is the default, if not provided)
     affectation_base_uri: Option<String>,
+    /// Method name
+    /// e.g. "HamiltonianGraphNaive" (the default)
+    method_name: Option<String>,
 }
 
 const DEFAULT_AFFECTATION_BASE_URI: &str = "http://localhost:8080/fr/affectation.html";
@@ -44,11 +47,12 @@ fn run() {
             DEFAULT_AFFECTATION_BASE_URI.to_string()
         });
 
-    match solve_from_data(cli_opts.input_file, affectation_base_uri) {
+    let method_name = cli_opts.method_name.unwrap_or("HamiltonianGraphNaive".to_string());
+    match solve_from_data(cli_opts.input_file, method_name) {
         Ok(links) => {
-            display_links_table(links);
+            display_links_table(links, affectation_base_uri);
         }
-        Err(e) => eprint!("error: {e}")
+        Err(e) => log::error!("{e}")
     };
 
     check_final_alloc();

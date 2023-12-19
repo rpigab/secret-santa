@@ -5,7 +5,7 @@ use crate::graph::digraph::Digraph;
 use crate::graph::node::Node;
 
 impl TryFrom<ParticipantsData> for Digraph {
-    type Error = &'static str;
+    type Error = anyhow::Error;
 
     fn try_from(value: ParticipantsData) -> Result<Self, Self::Error> {
         let mut g = Digraph::new();

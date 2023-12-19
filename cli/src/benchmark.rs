@@ -2,7 +2,7 @@ use clap::Parser;
 use env_logger::Env;
 
 use secret_santa_cli::display_links_table;
-use secret_santa_core::benchmark_solve;
+use secret_santa_core::solve::benchmark_solve;
 use secret_santa_utils::bench;
 use secret_santa_utils::chrono::Chrono;
 
@@ -28,11 +28,11 @@ fn run() {
 
     let cli_opts = CliOpts::parse();
 
-    match benchmark_solve(cli_opts.num_nodes, DEFAULT_AFFECTATION_BASE_URI.to_string()) {
+    match benchmark_solve(cli_opts.num_nodes) {
         Ok(links) => {
-            display_links_table(links);
+            display_links_table(links, DEFAULT_AFFECTATION_BASE_URI.to_string());
         }
-        Err(e) => eprint!("error: {e}")
+        Err(e) => log::error!("{e}")
     };
 
     bench::alloc::check_final_alloc();

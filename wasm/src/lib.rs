@@ -1,14 +1,15 @@
 use console_log;
 use log::Level;
-use serde_json;
 use wasm_bindgen::prelude::*;
-use web_sys::window;
 
-use secret_santa_core::solve_from_data;
+use secret_santa_core::assignment_links::{AssignmentLink, AssignmentLinks};
+use secret_santa_core::solve::solve_from_data;
 
 use crate::utils::set_panic_hook;
 
 mod utils;
+
+const AFFECTATION_BASE_URI: &str = "fr/affectation.html";
 
 #[wasm_bindgen]
 pub fn init() {
@@ -17,24 +18,23 @@ pub fn init() {
 }
 
 #[wasm_bindgen]
-pub fn solve(input_data: String) -> String {
+pub struct WasmAssignmentLinks(AssignmentLinks);
+
+#[wasm_bindgen]
+pub fn solve(input_data: String) -> Result<WasmAssignmentLinks, String> {
     log::debug!("solve");
-    let res = solve_from_data(input_data, get_affectation_base_uri())
-        .expect("error solving from data");
-    serde_json::to_string(&res)
-        .expect("error serializing hashmap result to string")
+    let res = solve_from_data(input_data, "HamiltonianGraphNaive".to_string())
+        .map_err(|e| format!("{e}"))?;
+    Ok(WasmAssignmentLinks(res))
 }
 
-fn get_affectation_base_uri() -> String {
-    let s: String = window().unwrap().location().to_string().into();
-    log::debug!("location: {s}");
-    let res = if let Some(stripped) = s.strip_suffix("/index.html") {
-        stripped.to_string()
-    } else if let Some(stripped) = s.strip_suffix("/") {
-        stripped.to_string()
-    } else {
-        s.to_string()
-    };
-
-    format!("{res}/fr/affectation.html")
+#[wasm_bindgen]
+pub fn show_result_html(assignment_links: WasmAssignmentLinks) -> String {
+    log::debug!("show_result_html");
+    let WasmAssignmentLinks(links) = assignment_links;
+    let res = links.assignments_links().into_iter()
+        .map(|AssignmentLink { giver_name, recipient_link }| {
+            format!(r#"<li><a href="{AFFECTATION_BASE_URI}{recipient_link}" target="_blank">{giver_name}</a></li>"#)
+        }).fold(String::new(), |a, b| a + &b + "\n");
+    res
 }

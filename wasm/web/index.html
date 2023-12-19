@@ -3,11 +3,13 @@
 <head>
     <meta charset="utf-8">
     <title>Secret Santa</title>
+    <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 <div>
     <label for="inputData">Enter input data(yml):</label>
-    <button id="loadExample">Load Example</button>
+    <button id="loadExample">Load example</button>
+    <button id="clearInput">Clear input</button>
 </div>
 <div>
     <textarea id="inputData" rows="15" cols="50"></textarea>
@@ -16,6 +18,7 @@
     <button id="solve">Solve</button>
 </div>
 <div>
+    <p id="solveErrors"></p>
     <p id="output"></p>
 </div>
 

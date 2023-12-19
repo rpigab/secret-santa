@@ -33,7 +33,7 @@ build_web:
   artifacts:
     paths:
       - "wasm/web/dist"
-    expire_in: 1 week
+    expire_in: 1h
 
 pages:
   stage: pages

@@ -3,10 +3,11 @@ use std::fs::File;
 use std::io::Read;
 use std::path::PathBuf;
 
-use serde::{Deserialize, Serialize};
+use anyhow::Context;
+use serde::Deserialize;
 use serde_yaml;
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize)]
 pub struct ParticipantsData {
     pub participants: Vec<String>,
     pub already_gifted_before: Option<HashMap<String, Vec<String>>>,
@@ -14,26 +15,29 @@ pub struct ParticipantsData {
 }
 
 impl TryFrom<PathBuf> for ParticipantsData {
-    type Error = &'static str;
+    type Error = anyhow::Error;
 
     fn try_from(input_file: PathBuf) -> Result<Self, Self::Error> {
         // Read YAML file into a String
         let mut file = File::open(input_file)
-            .map_err(|_| "error loading file")?;
+            .context("error loading file")?;
 
         let mut yaml_content = String::new();
         file.read_to_string(&mut yaml_content)
-            .map_err(|_| "error reading file to yaml String")?;
-        yaml_content.try_into()
+            .context("error reading file to yaml String")?;
+
+        let res = yaml_content.try_into()?;
+
+        Ok(res)
     }
 }
 
 impl TryFrom<String> for ParticipantsData {
-    type Error = &'static str;
+    type Error = anyhow::Error;
 
     /// String should contain valid yaml matching ParticipantsData's structure
     fn try_from(yaml_content: String) -> Result<Self, Self::Error> {
         serde_yaml::from_str(&yaml_content)
-            .map_err(|_| "error deserializing yaml to ParticipantData")
+            .context("cannot deserialize yaml data from String")
     }
 }
