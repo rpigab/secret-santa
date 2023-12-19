@@ -24,5 +24,6 @@ mod tests {
     #[test]
     fn calculate_chunks() {
         assert_eq!((1, 7), calculate_split_number_of_participants(11));
+        assert_eq!((1, 4), calculate_split_number_of_participants(8));
     }
 }

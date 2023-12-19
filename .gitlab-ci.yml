@@ -25,7 +25,7 @@ pages:
     - job: build_wasm
       artifacts: true
   script:
-    - mv wasm/web/dist public
+    - mv wasm/web public
   artifacts:
     paths:
       - public

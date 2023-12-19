@@ -44,7 +44,6 @@ pub fn show_result_html(solution: WasmSolution) -> String {
 
     let res = solution.assignments().into_iter()
         .map(|Assignment { recipient, giver }| {
-            //TODO obfuscate recipient
             let recipient_obf = obfuscate_name(recipient, seed, max_length);
             log::debug!("giver:{giver}, recipient:{recipient}, recipient_obf:{recipient_obf}, seed:{seed}");
             let uri = format!("{AFFECTATION_BASE_URI}?g={giver}&s={seed}&r={recipient_obf}");
@@ -57,10 +56,4 @@ pub fn show_result_html(solution: WasmSolution) -> String {
 pub fn deobfuscate_name(name: String, seed: String) -> String {
     log::debug!("deobfuscate_name({name}, {seed})");
     obfuscate::deobfuscate_name(&*name, &*seed)
-}
-
-#[wasm_bindgen]
-pub fn hello() -> String {
-    log::debug!("hello()");
-    "abc".to_string()
 }
