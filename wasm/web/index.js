@@ -1,36 +1,35 @@
-import * as wasm from "secret-santa-wasm";
+import init, {show_result_html, solve} from './pkg/secret_santa_wasm.js';
 
-wasm.init();
+async function run() {
+    await init();
 
-const solveButton = document.getElementById("solve");
-const clearInputButton = document.getElementById("clearInput");
+    const solveButton = document.getElementById("solve");
+    const clearInputButton = document.getElementById("clearInput");
 
-const inputElement = document.getElementById("inputData");
-const outputElement = document.getElementById("output");
-const solveErrorsElement = document.getElementById("solveErrors");
+    const inputElement = document.getElementById("inputData");
+    const outputElement = document.getElementById("output");
+    const solveErrorsElement = document.getElementById("solveErrors");
 
-clearInputButton.addEventListener("click", event => {
-    inputElement.value = "";
-});
+    clearInputButton.addEventListener("click", event => {
+        inputElement.value = "";
+    });
 
-solveButton.addEventListener("click", event => {
-    // Clear results and errors displayed
-    outputElement.innerHTML = "";
-    solveErrorsElement.innerText = "";
+    solveButton.addEventListener("click", event => {
+        // Clear results and errors displayed
+        outputElement.innerHTML = "";
+        solveErrorsElement.innerText = "";
+        const inputData = inputElement.value;
 
-    // Get the value (text) from the input element
-    const inputData = inputElement.value;
+        try {
+            const solution = solve(inputData);
+            outputElement.innerHTML = show_result_html(solution);
+        } catch (error) {
+            solveErrorsElement.innerText = error;
+            console.error(error);
+        }
+    });
 
-    try {
-        var assignmentsLinks = wasm.solve(inputData);
-        outputElement.innerHTML = wasm.show_result_html(assignmentsLinks);
-    } catch (error) {
-        solveErrorsElement.innerText = error;
-        console.error(error);
-    }
-});
-
-const exampleYaml = `participants:
+    const exampleYaml = `participants:
   - Alice
   - Bob
   - Carol
@@ -46,7 +45,11 @@ couples:
   - - Carol
     - David`;
 
-document.getElementById("loadExample")
-    .addEventListener("click", function () {
-        inputElement.value = exampleYaml;
-    });
+    document.getElementById("loadExample")
+        .addEventListener("click", function () {
+            inputElement.value = exampleYaml;
+        });
+
+}
+
+run();

@@ -549,8 +549,10 @@ name = "secret-santa-utils"
 version = "0.1.0"
 dependencies = [
  "base64",
+ "getrandom",
  "log",
  "peak_alloc",
+ "rand",
  "urlencoding",
 ]
 
@@ -562,6 +564,7 @@ dependencies = [
  "console_log",
  "log",
  "secret-santa-core",
+ "secret-santa-utils",
  "wasm-bindgen",
  "wee_alloc",
 ]

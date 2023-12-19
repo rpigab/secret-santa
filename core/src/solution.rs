@@ -2,16 +2,13 @@ use std::collections::HashSet;
 
 use anyhow::Result;
 
-use secret_santa_utils::recipient_uri::build_recipient_uri;
-
-use crate::assignment_links::{AssignmentLink, AssignmentLinks};
 use crate::cycle::Cycle;
 use crate::graph::digraph::Digraph;
 
 #[derive(Debug, Eq, Hash, PartialEq)]
-struct Assignment {
-    giver: String,
-    recipient: String,
+pub struct Assignment {
+    pub giver: String,
+    pub recipient: String,
 }
 
 #[derive(Debug)]
@@ -38,18 +35,7 @@ impl Solution {
         })
     }
 
-    pub(crate) fn to_solution_links(self) -> AssignmentLinks {
-        let assignments_links = self.assignments.into_iter()
-            .map(|Assignment { giver, recipient }|
-                (
-                    AssignmentLink {
-                        giver_name: giver.clone(),
-                        recipient_link: build_recipient_uri(giver, recipient),
-                    }
-                )
-            )
-            .collect();
-
-        AssignmentLinks { assignments_links }
+    pub fn assignments(&self) -> &HashSet<Assignment> {
+        &self.assignments
     }
 }

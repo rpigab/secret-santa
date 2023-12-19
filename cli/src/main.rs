@@ -24,7 +24,7 @@ struct CliOpts {
     method_name: Option<String>,
 }
 
-const DEFAULT_AFFECTATION_BASE_URI: &str = "http://localhost:8080/fr/affectation.html";
+const DEFAULT_AFFECTATION_BASE_URI: &str = "http://localhost:8080/fr/affectation-v2.html";
 
 fn main() {
     let chrono = Chrono::new();
@@ -49,8 +49,8 @@ fn run() {
 
     let method_name = cli_opts.method_name.unwrap_or("HamiltonianGraphNaive".to_string());
     match solve_from_data(cli_opts.input_file, method_name) {
-        Ok(links) => {
-            display_links_table(links, affectation_base_uri);
+        Ok(solution) => {
+            display_links_table(solution, affectation_base_uri);
         }
         Err(e) => log::error!("{e}")
     };
