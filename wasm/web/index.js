@@ -13,6 +13,119 @@
  * artifact produced by `wasm-pack build --target web --out-dir ./web/pkg`.
  * ------------------------------------------------------------------ */
 
+/* ───────────────────────── i18n ───────────────────────── */
+const translations = {
+  en: {
+    'brand.subtitle': 'Gift exchange',
+    'lang.toggle': 'FR',
+    'add.label': 'Add a person',
+    'add.input': 'Type a name…',
+    'add.button': 'Add',
+    'counts.people': 'people',
+    'counts.couples': 'couples',
+    'help.label': 'How it works',
+    'help.drag': 'Drag a name to float it anywhere.',
+    'help.heart': 'Drag the heart onto a friend to pair them (they won\'t gift each other).',
+    'help.bubble': 'Click a name, then drop other names into the bubble to log past gifts.',
+    'actions.draw': '🎲 Draw the names',
+    'actions.tidy': '✨ Tidy into a circle',
+    'actions.reveal': 'Reveal matches',
+    'actions.debug': 'debug · secret in real life',
+    'yaml.title': 'Advanced — edit YAML config',
+    'yaml.header': 'YAML config',
+    'yaml.close': 'Close',
+    'yaml.method': 'Solve method',
+    'yaml.backtracking': 'Backtracking · recommended',
+    'yaml.quatuors': 'Split quatuors · groups of 4',
+    'yaml.naive': 'Naive · ≤10 people',
+    'yaml.example': 'Example',
+    'yaml.apply': 'Apply',
+    'yaml.copy': 'Copy',
+    'bubble.title': 'already gifted',
+    'bubble.subtitle': 'already gifted to',
+    'bubble.dropzone': 'Drop a name here',
+    'error.min': 'Add at least 3 people to draw names.',
+    'error.loading': 'The solver is still loading — try again in a moment.',
+    'error.notfound': 'No participants found in YAML.',
+    'status.sealed': 'secret links sealed',
+    'status.sealed_desc': 'Send each person their own link — the recipient stays hidden in the URL.',
+    'status.whosgifts': 'Who gifts whom',
+    'node.heart': 'Drag onto a friend to pair',
+    'node.remove': 'Remove',
+  },
+  fr: {
+    'brand.subtitle': 'Tirage au sort',
+    'lang.toggle': 'EN',
+    'add.label': 'Ajouter une personne',
+    'add.input': 'Tapez un nom…',
+    'add.button': 'Ajouter',
+    'counts.people': 'personnes',
+    'counts.couples': 'couples',
+    'help.label': 'Comment ça marche',
+    'help.drag': 'Faites glisser un nom n\'importe où.',
+    'help.heart': 'Faites glisser le cœur sur un ami pour les associer (ils ne s\'offriront pas de cadeau).',
+    'help.bubble': 'Cliquez sur un nom, puis déposez d\'autres noms dans la bulle pour enregistrer les cadeaux passés.',
+    'actions.draw': '🎲 Tirage des noms',
+    'actions.tidy': '✨ Tidy dans un cercle',
+    'actions.reveal': 'Révéler les correspondances',
+    'actions.debug': 'debug · secret dans la vraie vie',
+    'yaml.title': 'Avancé — modifier la config YAML',
+    'yaml.header': 'Config YAML',
+    'yaml.close': 'Fermer',
+    'yaml.method': 'Méthode de résolution',
+    'yaml.backtracking': 'Backtracking · recommandé',
+    'yaml.quatuors': 'Diviser par quatuors · groupes de 4',
+    'yaml.naive': 'Naïf · ≤10 personnes',
+    'yaml.example': 'Exemple',
+    'yaml.apply': 'Appliquer',
+    'yaml.copy': 'Copier',
+    'bubble.title': 'a déjà offert à',
+    'bubble.subtitle': 'a déjà offert à',
+    'bubble.dropzone': 'Déposez un nom ici',
+    'error.min': 'Ajoutez au moins 3 personnes pour faire le tirage.',
+    'error.loading': 'Le solveur se charge toujours — réessayez dans un instant.',
+    'error.notfound': 'Aucun participant trouvé dans le YAML.',
+    'status.sealed': 'liens secrets scellés',
+    'status.sealed_desc': 'Envoyez à chaque personne son propre lien — le destinataire reste caché dans l\'URL.',
+    'status.whosgifts': 'Qui offre à qui',
+    'node.heart': 'Faites glisser sur un ami pour associer',
+    'node.remove': 'Supprimer',
+  }
+};
+
+let currentLang = localStorage.getItem('lang') || getPreferredLanguage();
+
+function getPreferredLanguage() {
+  const browserLang = navigator.language || navigator.userLanguage;
+  return browserLang.startsWith('fr') ? 'fr' : 'en';
+}
+
+function t(key) {
+  return translations[currentLang][key] || translations['en'][key] || key;
+}
+
+function setLanguage(lang) {
+  currentLang = lang;
+  localStorage.setItem('lang', lang);
+  document.documentElement.lang = lang;
+  updateTranslations();
+}
+
+function updateTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  document.querySelectorAll('[data-i18n-attr]').forEach(el => {
+    const attr = el.getAttribute('data-i18n-attr');
+    const [attrName, key] = attr.split(':');
+    el.setAttribute(attrName, t(key));
+  });
+}
+
+function toggleLanguage() {
+  setLanguage(currentLang === 'en' ? 'fr' : 'en');
+}
+
 /* ───────────────────────── state ───────────────────────── */
 const state = {
   nodes: [
@@ -393,6 +506,41 @@ function arrangeCircle() {
   });
 }
 
+function sortCircleCounterclockwise() {
+  if (!state.assignments || state.assignments.length === 0) return;
+
+  const cw = canvas.clientWidth || 820, ch = canvas.clientHeight || 560;
+  const cx = cw / 2, cy = ch / 2;
+  const byName = {};
+  state.nodes.forEach(n => { byName[n.name] = n; });
+
+  const angles = {};
+  state.nodes.forEach(n => { angles[n.id] = 0; });
+
+  state.assignments.forEach(m => {
+    const giver = byName[m.giver], recipient = byName[m.recipient];
+    if (!giver || !recipient) return;
+
+    const giverAngle = Math.atan2(giver.y - cy, giver.x - cx);
+    const recipientAngle = Math.atan2(recipient.y - cy, recipient.x - cx);
+
+    let angleDiff = recipientAngle - giverAngle;
+    while (angleDiff < 0) angleDiff += 2 * Math.PI;
+    while (angleDiff >= 2 * Math.PI) angleDiff -= 2 * Math.PI;
+
+    angles[giver.id] = (angles[giver.id] + angleDiff) / (angles[giver.id] === 0 ? 1 : 2);
+  });
+
+  const sorted = state.nodes.slice().sort((a, b) => angles[a.id] - angles[b.id]);
+
+  const R = Math.min(cw / 2, ch / 2) - 95;
+  sorted.forEach((n, i) => {
+    const ang = -Math.PI / 2 + (i * 2 * Math.PI) / sorted.length;
+    n.x = cx + R * Math.cos(ang);
+    n.y = cy + R * Math.sin(ang);
+  });
+}
+
 /* ───────────────────────── add a name ───────────────────────── */
 function addName() {
   const input = el('nameInput');
@@ -463,6 +611,7 @@ function setDebug(on) {
 }
 
 function init() {
+  setLanguage(currentLang);
   buildGifts();
   arrangeCircle();
   renderGraph();
@@ -470,8 +619,9 @@ function init() {
   el('addBtn').addEventListener('click', addName);
   el('nameInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') addName(); });
   el('drawBtn').addEventListener('click', draw);
-  el('tidyBtn').addEventListener('click', () => { arrangeCircle(); renderGraph(); });
+  el('tidyBtn').addEventListener('click', () => { arrangeCircle(); sortCircleCounterclockwise(); renderGraph(); });
   el('debugToggle').addEventListener('click', () => setDebug(!state.debug));
+  el('langToggle').addEventListener('click', toggleLanguage);
 
   // canvas: click empty space closes bubble
   canvas.addEventListener('pointerdown', () => { if (state.selectedNode) { state.selectedNode = null; renderGraph(); } });

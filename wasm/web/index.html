@@ -17,34 +17,36 @@
             <div class="mark">🎁</div>
             <div>
                 <h1>Secret Santa</h1>
-                <div class="sub">Gift exchange · Tirage au sort</div>
+                <div class="sub" data-i18n="brand.subtitle">Gift exchange · Tirage au sort</div>
             </div>
+            <div style="flex: 1;"></div>
+            <button class="lang-toggle" id="langToggle" title="Toggle language" data-i18n="lang.toggle">EN</button>
         </div>
 
         <div class="section">
-            <div class="section-label">Add a person · Ajouter</div>
+            <div class="section-label" data-i18n="add.label">Add a person · Ajouter</div>
             <div class="add-row">
-                <input id="nameInput" type="text" placeholder="Type a name…" autocomplete="off" spellcheck="false" />
-                <button class="btn btn-add" id="addBtn" title="Add">+</button>
+                <input id="nameInput" type="text" data-i18n-attr="placeholder:add.input" placeholder="Type a name…" autocomplete="off" spellcheck="false" />
+                <button class="btn btn-add" id="addBtn" data-i18n-attr="title:add.button" title="Add">+</button>
             </div>
             <div class="counts">
-                <span>👥 <b id="countPeople">0</b> people</span>
-                <span>💞 <b id="countCouples">0</b> couples</span>
+                <span>👥 <b id="countPeople">0</b> <span data-i18n="counts.people">people</span></span>
+                <span>💞 <b id="countCouples">0</b> <span data-i18n="counts.couples">couples</span></span>
             </div>
         </div>
 
         <div class="section help">
-            <div class="section-label">How it works</div>
-            <div class="help-row"><span class="i">✋</span><span>Drag a name to float it anywhere.</span></div>
-            <div class="help-row"><span class="i heart">♥</span><span>Drag the heart onto a friend to pair them (they won't gift each other).</span></div>
-            <div class="help-row"><span class="i">🫧</span><span>Click a name, then drop other names into the bubble to log past gifts.</span></div>
+            <div class="section-label" data-i18n="help.label">How it works</div>
+            <div class="help-row"><span class="i">✋</span><span data-i18n="help.drag">Drag a name to float it anywhere.</span></div>
+            <div class="help-row"><span class="i heart">♥</span><span data-i18n="help.heart">Drag the heart onto a friend to pair them (they won't gift each other).</span></div>
+            <div class="help-row"><span class="i">🫧</span><span data-i18n="help.bubble">Click a name, then drop other names into the bubble to log past gifts.</span></div>
         </div>
 
         <div class="actions">
-            <button class="btn btn-draw" id="drawBtn">🎲 Draw the names · Tirage</button>
-            <button class="btn-ghost" id="tidyBtn">✨ Tidy into a circle</button>
+            <button class="btn btn-draw" id="drawBtn" data-i18n="actions.draw">🎲 Draw the names · Tirage</button>
+            <button class="btn-ghost" id="tidyBtn" data-i18n="actions.tidy">✨ Tidy into a circle</button>
             <button class="toggle" id="debugToggle" aria-pressed="false">
-                <span class="toggle-txt"><b>Reveal matches</b><small>debug · secret in real life</small></span>
+                <span class="toggle-txt"><b data-i18n="actions.reveal">Reveal matches</b><small data-i18n="actions.debug">debug · secret in real life</small></span>
                 <span class="track"><span class="knob"></span></span>
             </button>
         </div>
@@ -61,25 +63,25 @@
             <div class="bubble" id="bubble" hidden></div>
         </div>
 
-        <button class="cog" id="cogBtn" title="Advanced — edit YAML config">⚙️</button>
+        <button class="cog" id="cogBtn" data-i18n-attr="title:yaml.title" title="Advanced — edit YAML config">⚙️</button>
         <div class="yaml-drawer" id="yamlDrawer" hidden>
             <div class="yaml-head">
-                <span>YAML config</span>
-                <button id="yamlClose" title="Close">×</button>
+                <span data-i18n="yaml.header">YAML config</span>
+                <button id="yamlClose" data-i18n-attr="title:yaml.close" title="Close">×</button>
             </div>
             <div class="method-row">
-                <label for="methodSelect">Solve method</label>
+                <label for="methodSelect" data-i18n="yaml.method">Solve method</label>
                 <select id="methodSelect">
-                    <option value="HamiltonianBacktrack">Backtracking · recommended</option>
-                    <option value="SplitQuatuors">Split quatuors · groups of 4</option>
-                    <option value="HamiltonianGraphNaive">Naive · ≤10 people</option>
+                    <option value="HamiltonianBacktrack" data-i18n="yaml.backtracking">Backtracking · recommended</option>
+                    <option value="SplitQuatuors" data-i18n="yaml.quatuors">Split quatuors · groups of 4</option>
+                    <option value="HamiltonianGraphNaive" data-i18n="yaml.naive">Naive · ≤10 people</option>
                 </select>
             </div>
             <textarea id="yamlText" spellcheck="false"></textarea>
             <div class="yaml-actions">
-                <button class="btn-ghost" id="yamlExample">Example</button>
-                <button class="btn-ghost" id="yamlApply">Apply</button>
-                <button class="btn-ghost" id="yamlCopy">Copy</button>
+                <button class="btn-ghost" id="yamlExample" data-i18n="yaml.example">Example</button>
+                <button class="btn-ghost" id="yamlApply" data-i18n="yaml.apply">Apply</button>
+                <button class="btn-ghost" id="yamlCopy" data-i18n="yaml.copy">Copy</button>
             </div>
         </div>
     </main>
