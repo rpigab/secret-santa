@@ -2,27 +2,82 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secret Santa</title>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div>
-    <label for="inputData">Enter input data(yml):</label>
-    <button id="loadExample">Load example</button>
-    <button id="clearInput">Clear input</button>
-</div>
-<div>
-    <textarea id="inputData" rows="15" cols="50"></textarea>
-</div>
-<div>
-    <button id="solve">Solve</button>
-</div>
-<div>
-    <p id="solveErrors"></p>
-    <p id="output"></p>
+<div class="app">
+
+    <!-- ───────── Control panel ───────── -->
+    <aside class="panel">
+        <div class="brand">
+            <div class="mark">🎁</div>
+            <div>
+                <h1>Secret Santa</h1>
+                <div class="sub">Gift exchange · Tirage au sort</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-label">Add a person · Ajouter</div>
+            <div class="add-row">
+                <input id="nameInput" type="text" placeholder="Type a name…" autocomplete="off" spellcheck="false" />
+                <button class="btn btn-add" id="addBtn" title="Add">+</button>
+            </div>
+            <div class="counts">
+                <span>👥 <b id="countPeople">0</b> people</span>
+                <span>💞 <b id="countCouples">0</b> couples</span>
+            </div>
+        </div>
+
+        <div class="section help">
+            <div class="section-label">How it works</div>
+            <div class="help-row"><span class="i">✋</span><span>Drag a name to float it anywhere.</span></div>
+            <div class="help-row"><span class="i heart">♥</span><span>Drag the heart onto a friend to pair them (they won't gift each other).</span></div>
+            <div class="help-row"><span class="i">🫧</span><span>Click a name, then drop other names into the bubble to log past gifts.</span></div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-draw" id="drawBtn">🎲 Draw the names · Tirage</button>
+            <button class="btn-ghost" id="tidyBtn">✨ Tidy into a circle</button>
+            <button class="toggle" id="debugToggle" aria-pressed="false">
+                <span class="toggle-txt"><b>Reveal matches</b><small>debug · secret in real life</small></span>
+                <span class="track"><span class="knob"></span></span>
+            </button>
+        </div>
+
+        <div class="status" id="status"></div>
+    </aside>
+
+    <!-- ───────── Graph stage ───────── -->
+    <main class="stage">
+        <div class="canvas" id="canvas">
+            <div class="gifts" id="gifts"></div>
+            <svg class="links" id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
+            <div class="nodes" id="nodes"></div>
+            <div class="bubble" id="bubble" hidden></div>
+        </div>
+
+        <button class="cog" id="cogBtn" title="Advanced — edit YAML config">⚙️</button>
+        <div class="yaml-drawer" id="yamlDrawer" hidden>
+            <div class="yaml-head">
+                <span>YAML config</span>
+                <button id="yamlClose" title="Close">×</button>
+            </div>
+            <textarea id="yamlText" spellcheck="false"></textarea>
+            <div class="yaml-actions">
+                <button class="btn-ghost" id="yamlExample">Example</button>
+                <button class="btn-ghost" id="yamlApply">Apply</button>
+                <button class="btn-ghost" id="yamlCopy">Copy</button>
+            </div>
+        </div>
+    </main>
 </div>
 
-<noscript>This page contains webassembly and javascript content, please enable javascript in your browser.</noscript>
+<noscript>This page contains WebAssembly and JavaScript content, please enable JavaScript in your browser.</noscript>
 <script type="module" src="./index.js"></script>
 </body>
 </html>
