@@ -25,10 +25,17 @@ pub fn init() {
 #[wasm_bindgen]
 pub struct WasmSolution(Solution);
 
+const DEFAULT_METHOD: &str = "HamiltonianBacktrack";
+
 #[wasm_bindgen]
-pub fn solve(input_data: String) -> Result<WasmSolution, String> {
-    log::debug!("solve");
-    let res = solve_from_data(input_data, "SplitQuatuors".to_string())
+pub fn solve(input_data: String, method_name: String) -> Result<WasmSolution, String> {
+    log::debug!("solve (method: {method_name})");
+    let method_name = if method_name.is_empty() {
+        DEFAULT_METHOD.to_string()
+    } else {
+        method_name
+    };
+    let res = solve_from_data(input_data, method_name)
         .map_err(|e| format!("{e}"))?;
     Ok(WasmSolution(res))
 }

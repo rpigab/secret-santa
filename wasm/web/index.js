@@ -24,6 +24,7 @@ const state = {
   couples: [['n1', 'n2'], ['n3', 'n4']],
   gifted: { n1: ['Carol'], n3: ['Bob'] },   // by node id -> [names]
   selectedNode: null,
+  method: 'HamiltonianBacktrack',   // solver picked in the cog ⚙ menu
   debug: false,
   assignments: null,   // [{giver, recipient}] from show_result_debug
   links: null,         // [{giver, href}] parsed from show_result_html
@@ -420,7 +421,7 @@ function draw() {
   const yaml = buildYaml();
   let sol = null;
   try {
-    sol = wasm.solve(yaml);
+    sol = wasm.solve(yaml, state.method);
     // Both readers take &WasmSolution, so the same draw powers links + arrows.
     state.assignments = JSON.parse(wasm.show_result_debug(sol));
     state.links = parseLinks(wasm.show_result_html(sol));
@@ -515,6 +516,15 @@ function init() {
   el('yamlApply').addEventListener('click', () => { applyParsed(parseYaml(el('yamlText').value)); drawer.hidden = true; });
   el('yamlCopy').addEventListener('click', async (e) => {
     try { await navigator.clipboard.writeText(el('yamlText').value); e.target.textContent = 'Copied!'; setTimeout(() => { e.target.textContent = 'Copy'; }, 1200); } catch (_) {}
+  });
+
+  // solve-method dropdown (re-draws so the new method takes effect immediately)
+  const methodSelect = el('methodSelect');
+  methodSelect.value = state.method;
+  methodSelect.addEventListener('change', (e) => {
+    state.method = e.target.value;
+    state.assignments = null; state.links = null;
+    if (wasm && state.nodes.length >= 3) draw(); else renderStatus();
   });
 
   window.addEventListener('resize', () => renderBubble());

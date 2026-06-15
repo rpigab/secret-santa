@@ -67,6 +67,14 @@
                 <span>YAML config</span>
                 <button id="yamlClose" title="Close">×</button>
             </div>
+            <div class="method-row">
+                <label for="methodSelect">Solve method</label>
+                <select id="methodSelect">
+                    <option value="HamiltonianBacktrack">Backtracking · recommended</option>
+                    <option value="SplitQuatuors">Split quatuors · groups of 4</option>
+                    <option value="HamiltonianGraphNaive">Naive · ≤10 people</option>
+                </select>
+            </div>
             <textarea id="yamlText" spellcheck="false"></textarea>
             <div class="yaml-actions">
                 <button class="btn-ghost" id="yamlExample">Example</button>
