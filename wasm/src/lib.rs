@@ -33,10 +33,14 @@ pub fn solve(input_data: String) -> Result<WasmSolution, String> {
     Ok(WasmSolution(res))
 }
 
+// NOTE: takes `&WasmSolution` (by reference) instead of by value so the JS
+// frontend can read both the obfuscated links AND the debug assignments from
+// the *same* solve() — the solver picks a cycle at random, so re-solving would
+// give arrows that don't match the links.
 #[wasm_bindgen]
-pub fn show_result_html(solution: WasmSolution) -> String {
+pub fn show_result_html(solution: &WasmSolution) -> String {
     log::debug!("show_result_html");
-    let WasmSolution(solution) = solution;
+    let solution = &solution.0;
     let max_length = solution.assignments().iter()
         .fold(0_usize, |a, Assignment { recipient, .. }| max(a, recipient.len()));
 
@@ -50,6 +54,46 @@ pub fn show_result_html(solution: WasmSolution) -> String {
             format!(r#"<li><a href="{uri}" target="_blank">{giver}</a></li>"#)
         }).fold(String::new(), |a, b| a + &b + "\n");
     res
+}
+
+/// Dev-only: return the *plaintext* assignments as a JSON array
+/// `[{"giver":"…","recipient":"…"}, …]`, so the frontend "debug / reveal"
+/// mode can draw the real who-gifts-whom arrows. This intentionally bypasses
+/// the name obfuscation, so it must only be used behind the UI's debug flag —
+/// never in the links that get sent to participants.
+#[wasm_bindgen]
+pub fn show_result_debug(solution: &WasmSolution) -> String {
+    log::debug!("show_result_debug");
+    let solution = &solution.0;
+    let items: Vec<String> = solution.assignments().iter()
+        .map(|Assignment { giver, recipient }| {
+            format!(
+                "{{\"giver\":{},\"recipient\":{}}}",
+                json_string(giver),
+                json_string(recipient)
+            )
+        })
+        .collect();
+    format!("[{}]", items.join(","))
+}
+
+/// Minimal JSON string encoder (avoids pulling in serde_json for one helper).
+fn json_string(s: &str) -> String {
+    let mut out = String::with_capacity(s.len() + 2);
+    out.push('"');
+    for c in s.chars() {
+        match c {
+            '"' => out.push_str("\\\""),
+            '\\' => out.push_str("\\\\"),
+            '\n' => out.push_str("\\n"),
+            '\r' => out.push_str("\\r"),
+            '\t' => out.push_str("\\t"),
+            c if (c as u32) < 0x20 => out.push_str(&format!("\\u{:04x}", c as u32)),
+            c => out.push(c),
+        }
+    }
+    out.push('"');
+    out
 }
 
 #[wasm_bindgen]
