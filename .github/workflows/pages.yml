@@ -21,13 +21,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Cache Rust
+        uses: swatinem/rust-cache@v2
+
       - name: Install Rust and wasm-pack
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
 
       - name: Install wasm-pack
-        run: curl https://rustwasm.org/wasm-pack/installer/init.sh -sSf | sh
+        run: cargo install wasm-pack
 
       - name: Build WASM
         run: |
