@@ -21,6 +21,7 @@ struct CliOpts {
     affectation_base_uri: Option<String>,
     /// Method name
     /// e.g. "HamiltonianGraphNaive" (the default)
+    #[arg(short, long)]
     method_name: Option<String>,
 }
 

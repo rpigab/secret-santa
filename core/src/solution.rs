@@ -35,7 +35,17 @@ impl Solution {
         })
     }
 
+    /// Build a solution from already-computed assignments,
+    /// e.g. when merging the cycles of several independently-solved subgraphs.
+    pub(crate) fn from_assignments(assignments: HashSet<Assignment>) -> Self {
+        Solution { assignments }
+    }
+
     pub fn assignments(&self) -> &HashSet<Assignment> {
         &self.assignments
+    }
+
+    pub(crate) fn into_assignments(self) -> HashSet<Assignment> {
+        self.assignments
     }
 }

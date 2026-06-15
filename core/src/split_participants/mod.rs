@@ -1,1 +1,1 @@
-mod split;
+pub(crate) mod split;

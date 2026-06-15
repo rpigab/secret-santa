@@ -28,7 +28,7 @@ pub struct WasmSolution(Solution);
 #[wasm_bindgen]
 pub fn solve(input_data: String) -> Result<WasmSolution, String> {
     log::debug!("solve");
-    let res = solve_from_data(input_data, "HamiltonianGraphNaive".to_string())
+    let res = solve_from_data(input_data, "SplitQuatuors".to_string())
         .map_err(|e| format!("{e}"))?;
     Ok(WasmSolution(res))
 }
