@@ -9,6 +9,8 @@ not 1, 2 or 3 participants, but rather 5, 6 or 7.
 
 use std::collections::{HashMap, HashSet};
 
+use rand::seq::SliceRandom;
+
 use crate::data::participants_data::ParticipantsData;
 
 const CHUNK_SIZE: usize = 4;
@@ -21,10 +23,15 @@ const CHUNK_SIZE: usize = 4;
 /// different subgroups can never be assigned to each other, so they are dropped.
 pub(crate) fn split_participants(participants_data: ParticipantsData) -> Vec<ParticipantsData> {
     let ParticipantsData {
-        participants,
+        mut participants,
         already_gifted_before,
         couples,
     } = participants_data;
+
+    // Shuffle so constraints (couples, gifting history) get spread across the
+    // subgroups instead of piling up on a single quatuor, which could leave one
+    // person blocked from every group-mate and make a subgroup unsolvable.
+    participants.shuffle(&mut rand::thread_rng());
 
     let (num_quatuors, size_complement) =
         calculate_split_number_of_participants(participants.len());
@@ -126,31 +133,47 @@ mod tests {
 
     #[test]
     fn keeps_only_in_group_constraints() {
+        // Force the same group membership regardless of the shuffle by making
+        // the would-be straddling pair impossible to colocate: with 8 people in
+        // groups of 4, members "a".."d" vs "e".."h" can land together in any mix,
+        // so instead we assert invariants that hold for every possible split.
         let data = ParticipantsData {
             participants: (1..=8).map(|i| i.to_string()).collect(),
             already_gifted_before: Some(HashMap::from([
-                ("1".to_string(), vec!["2".to_string(), "5".to_string()]),
+                ("1".to_string(), vec!["2".to_string(), "3".to_string()]),
             ])),
-            // (1, 3) are in the first group, (4, 8) straddle two groups
             couples: Some(vec![
-                ("1".to_string(), "3".to_string()),
-                ("4".to_string(), "8".to_string()),
+                ("1".to_string(), "2".to_string()),
             ]),
         };
 
         let groups = split_participants(data);
 
-        // first group: participants 1..=4
-        let first = &groups[0];
-        assert_eq!(first.couples, Some(vec![("1".to_string(), "3".to_string())]));
-        // "5" is dropped from already_gifted_before of "1", "2" is kept
-        assert_eq!(
-            first.already_gifted_before,
-            Some(HashMap::from([("1".to_string(), vec!["2".to_string()])]))
-        );
+        for group in &groups {
+            let members: HashSet<&String> = group.participants.iter().collect();
 
-        // second group: participants 5..=8, the straddling couple is dropped
-        let second = &groups[1];
-        assert_eq!(second.couples, Some(vec![]));
+            // every kept couple is fully inside the group
+            for (a, b) in group.couples.as_ref().unwrap() {
+                assert!(members.contains(a) && members.contains(b));
+            }
+
+            // every kept gifting entry, and its recipients, are inside the group
+            for (giver, recipients) in group.already_gifted_before.as_ref().unwrap() {
+                assert!(members.contains(giver));
+                for recipient in recipients {
+                    assert!(members.contains(recipient));
+                }
+            }
+        }
+
+        // the couple (1, 2) is kept iff 1 and 2 share a group, dropped otherwise
+        let kept_couples: usize = groups.iter()
+            .map(|g| g.couples.as_ref().unwrap().len())
+            .sum();
+        let one_two_together = groups.iter().any(|g| {
+            let m: HashSet<&String> = g.participants.iter().collect();
+            m.contains(&"1".to_string()) && m.contains(&"2".to_string())
+        });
+        assert_eq!(kept_couples, if one_two_together { 1 } else { 0 });
     }
 }

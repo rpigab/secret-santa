@@ -1,0 +1,54 @@
+participants:
+  - Alice
+  - Bob
+  - Charlie
+  - Diana
+  - Ethan
+  - Fiona
+  - George
+  - Hannah
+  - Ivan
+  - Julia
+  - Kevin
+  - Laura
+  - Mason
+  - Nina
+  - Oscar
+  - Paula
+  - Quentin
+  - Rachel
+  - Sam
+  - Tina
+
+# People who already gifted these recipients in previous years
+# (they won't be assigned to them again)
+already_gifted_before:
+  Bob:
+    - Charlie
+  Fiona:
+    - Hannah
+  Julia:
+    - Kevin
+  Nina:
+    - Paula
+  Rachel:
+    - Tina
+  # cross-group history is harmless: they're in different quatuors anyway
+  Diana:
+    - Ethan
+
+# Couples never gift each other
+couples:
+  - - Alice
+    - Diana
+  - - Ethan
+    - George
+  - - Ivan
+    - Laura
+  - - Mason
+    - Oscar
+  - - Quentin
+    - Sam
+  # cross-group couple, automatically dropped during the split
+  - - Hannah
+    - Ivan
